@@ -5,7 +5,8 @@ All numbers are true AUC in units of 1e-5, from the tables above (8-10 replicate
 
 - **At Playground size, a blend's OOF score is honest.** With 700k OOF rows and 16 models, fitting the weights
   inflates the OOF AUC by about 0.1-0.2 (standard error 0.2-0.4). If your blend's OOF is 1e-4 above its public LB,
-  weight selection is not the reason. Look at the base models and at the train/test match instead.
+  weight selection is not the reason. Even an unregularised 120-member stack is inflated by only about 5, and it
+  is truly 2 *worse* than the plain mean, so large pools want a regularised stack.
 - **Many models on few rows is where it bites.** At 100k rows, the optimism stays below about 1 up to 10 models,
   then rises to 5-6 at 20 models and to 9-14 at 40. At 40 models, the hill-climb and the stack are truly worse
   than the plain mean of all models (-3 and -5), although their OOF says they are better.

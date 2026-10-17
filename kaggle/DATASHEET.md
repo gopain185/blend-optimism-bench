@@ -28,6 +28,7 @@ blend is `w* = C^{-1} d`.
 | `exp1_pool_size.csv` | 160 | one row per replicate and rule, pools of 2 to 40 models, 100k rows |
 | `exp2_n_rows.csv` | 100 | one row per replicate and rule, 16 models, 10k to 700k rows |
 | `exp3_headroom.csv` | 128 | one row per replicate and rule, 16 models, 100k rows, ceilings 0.9605 to 0.963 |
+| `exp4_large_pool.csv` | 40 | one row per replicate and rule (mean and stack only), 40 and 120 models, 700k rows |
 
 Columns of the experiment tables:
 

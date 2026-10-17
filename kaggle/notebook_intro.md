@@ -22,6 +22,7 @@ one the notebook measures:
 1. how much its OOF score overstates its true AUC, as the pool grows from 2 to 40 models;
 2. how that changes with 10k to 700k OOF rows;
 3. how it depends on how much room there is to blend;
-4. whether a nested-CV estimate of the blend removes the bias.
+4. what happens with 40 and 120 members on 700k rows, the size of the public OOF stacks;
+5. whether a nested-CV estimate of the blend removes the bias.
 
-Everything runs on CPU in about 15 minutes, and the package source is embedded below.
+Everything runs on CPU in about 25 minutes, and the package source is embedded below.

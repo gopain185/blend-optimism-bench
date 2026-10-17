@@ -72,8 +72,32 @@ def headroom(ceilings=(0.9605, 0.961, 0.9615, 0.963), k: int = 16, n: int = 100_
     return _frame(rows)
 
 
+def large_pool(ks=(40, 120), n: int = 700_000, reps: int = 10, seed: int = SEED + 3) -> pd.DataFrame:
+    """Large public-OOF stacks on Playground-sized data: only the mean and the logistic stack (a hill-climb over
+    120 models is too slow to replicate)."""
+    from .blend import logistic_stack, mean_all
+
+    rng = np.random.default_rng(seed)
+    rows = []
+    for k in ks:
+        for rep in range(reps):
+            pool = make_pool(rng, k)
+            y, S = pool.sample(rng, n)
+            for name, rule in (("mean of all", mean_all), ("logistic stack", logistic_stack)):
+                w = rule(y, S)
+                rows.append(dict(rule=name, k=k, n=n, ceiling=0.961, rep=rep, oof=auc(y, S @ w), true=pool.true_auc(w),
+                                 best_single_true=pool.single_aucs().max(), oracle=pool.optimal_auc()))
+    df = pd.DataFrame(rows)
+    df["optimism"] = df.oof - df.true
+    base = df[df.rule == "mean of all"].set_index(["k", "rep"]).optimism
+    df["selection_optimism"] = df.optimism - base.reindex(pd.MultiIndex.from_frame(df[["k", "rep"]])).to_numpy()
+    df["gain_true"] = df.true - df.best_single_true
+    df["regret"] = df.oracle - df.true
+    return df
+
+
 def summarise(df: pd.DataFrame, by: str) -> pd.DataFrame:
-    cols = {"selection_optimism": "mean", "gain_oof": "mean", "gain_true": "mean", "regret": "mean"}
+    cols = {c: "mean" for c in ("selection_optimism", "gain_oof", "gain_true", "regret") if c in df}
     if "nested_bias" in df:
         cols["nested_bias"] = "mean"
     out = df.groupby([by, "rule"], sort=False).agg(cols).reset_index()

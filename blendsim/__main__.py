@@ -10,7 +10,7 @@ from . import experiments as ex
 def main(out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
     for name, fn, by in [("exp1_pool_size", ex.pool_size, "k"), ("exp2_n_rows", ex.n_rows, "n"),
-                         ("exp3_headroom", ex.headroom, "ceiling")]:
+                         ("exp3_headroom", ex.headroom, "ceiling"), ("exp4_large_pool", ex.large_pool, "k")]:
         t = time.time()
         df = fn()
         df.to_csv(out / f"{name}.csv", index=False)

@@ -19,7 +19,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from blendsim.experiments import SEED, headroom, n_rows, pool_size  # noqa: E402
+from blendsim.experiments import SEED, headroom, large_pool, n_rows, pool_size  # noqa: E402
 from blendsim.sim import make_pool  # noqa: E402
 
 OUT = ROOT / "kaggle"
@@ -43,7 +43,8 @@ def build_dataset(public: bool, rerun: bool = True) -> Path:
                   "optimal_weight": pool.optimal_weights()}).to_csv(out / "pool_models.csv", index=False)
     pd.DataFrame(pool.cov, index=names, columns=names).to_csv(out / "pool_noise_covariance.csv")
     if rerun:
-        for name, fn in [("exp1_pool_size", pool_size), ("exp2_n_rows", n_rows), ("exp3_headroom", headroom)]:
+        for name, fn in [("exp1_pool_size", pool_size), ("exp2_n_rows", n_rows), ("exp3_headroom", headroom),
+                         ("exp4_large_pool", large_pool)]:
             fn().to_csv(out / f"{name}.csv", index=False)
     else:  # reuse the tables written by `python -m blendsim results`
         for f in sorted((ROOT / "results").glob("exp*.csv")):
@@ -83,7 +84,7 @@ sys.path.insert(0, ROOT)
         ("code", """import time, warnings
 warnings.simplefilter("ignore")
 import numpy as np, pandas as pd, matplotlib.pyplot as plt
-from blendsim.experiments import pool_size, n_rows, headroom, summarise
+from blendsim.experiments import pool_size, n_rows, headroom, large_pool, summarise
 pd.set_option("display.precision", 6)
 """),
         ("markdown", "## 1. More candidate models\n\nPools of 2 to 40 models, 100k OOF rows each. Every rule "
@@ -107,7 +108,11 @@ axes[0].axhline(0, color="k", lw=0.8); axes[0].legend(); axes[1].legend(); plt.t
         ("markdown", "## 3. More room to blend\n\nThe ceiling is the best AUC any blend could reach. The higher it "
                      "is above the best single model (0.96), the more the models' own errors differ."),
         ("code", "t = time.time(); e3 = headroom(); print(round(time.time() - t), 's'); summarise(e3, 'ceiling')"),
-        ("markdown", "## 4. The pool in the dataset\n\nThe companion dataset holds one pool: 16 models' OOF "
+        ("markdown", "## 4. Large stacks on 700k rows\n\nThe public OOF libraries of Playground competitions get "
+                     "stacked 100+ members at a time. Here: 40 and 120 members, 700k OOF rows, plain mean against an "
+                     "unregularised logistic stack."),
+        ("code", "t = time.time(); e4 = large_pool(); print(round(time.time() - t), 's'); summarise(e4, 'k')"),
+        ("markdown", "## 5. The pool in the dataset\n\nThe companion dataset holds one pool: 16 models' OOF "
                      "scores on 100k rows, and the exact noise covariance, so the true AUC of any blend you "
                      "build on it can be computed. Here a hill-climb and a logistic stack are fitted to it."),
         ("code", """import glob

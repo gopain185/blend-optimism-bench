@@ -58,14 +58,21 @@ Means over replicates, in units of 1e-5 AUC, with the standard error in brackets
 **3. Headroom** (16 models, 100k rows): with the ceiling between 0.9605 and 0.963, the optimism stays at
 3-6 (about 1 standard error each), whatever the room to blend.
 
-**4. Nested CV.** A 5-fold nested estimate of the hill-climb or the stack is between +0.7 and -7.4 away from the truth, usually
+**4. Large stacks on Playground-sized data** (700k rows, logistic stack only, 10 replicates):
+
+| members | stack optimism | stack true gain over the mean |
+| --- | --- | --- |
+| 40 | 1.2 (0.2) | +2.4 (1.0) |
+| 120 | 5.2 (0.2) | -1.9 (0.3) |
+
+**5. Nested CV.** A 5-fold nested estimate of the hill-climb or the stack is between +0.7 and -7.4 away from the truth, usually
 negative (slightly pessimistic), because each fold's weights see 80% of the rows.
 
 What it shows:
 
 - **At Playground size the OOF score of a blend is honest.** With 700k OOF rows and 16 models, choosing the weights
-  inflates the OOF AUC by about 1e-6. Weight selection cannot explain a 1e-4 gap between a blend's OOF and the
-  public LB.
+  inflates the OOF AUC by about 1e-6, and an unregularised 120-member stack by 5e-5. Weight selection cannot
+  explain a 1e-4 gap between a blend's OOF and the public LB.
 - **Many models on few rows is where it bites.** At 100k rows the optimism jumps between 10 and 20 models. At 40
   models, both the hill-climb and the stack end up worse in truth than the plain mean, while their OOF says they
   are better. At 10k rows the stack overstates itself by 0.0005 and is truly 0.0002 worse than the mean.
@@ -76,7 +83,7 @@ What it shows:
 
 ```bash
 pip install -r requirements.txt
-python -m blendsim results     # all three experiments, about 20 minutes on a busy CPU
+python -m blendsim results     # all four experiments, about 20 minutes on a busy CPU
 python -m pytest -q            # 10 tests, about 1.5 minutes
 python kaggle/build_kaggle.py --reuse-results   # Kaggle dataset + notebook from the saved tables
 ```
@@ -86,7 +93,7 @@ python kaggle/build_kaggle.py --reuse-results   # Kaggle dataset + notebook from
 ```
 blendsim/sim.py           pools with a closed-form blend AUC, rank-sum AUC, sampling
 blendsim/blend.py         best single, mean, hill-climb, logistic stack, nested estimate
-blendsim/experiments.py   the three experiments and their summaries
+blendsim/experiments.py   the four experiments and their summaries
 results/                  raw tables of the run above (seed 20261018)
 tests/                    checks of the closed form, the rules and the main claim on small runs
 kaggle/                   dataset and notebook builders, datasheet
