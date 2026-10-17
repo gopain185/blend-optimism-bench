@@ -1,0 +1,10 @@
+[project]
+name = "blend-optimism-bench"
+version = "0.1.0"
+description = "Simulated OOF model pools with known true blend AUCs: how much hill-climbing and stacking overfit the OOF"
+requires-python = ">=3.10"
+dependencies = ["numpy", "scipy", "pandas", "scikit-learn"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
